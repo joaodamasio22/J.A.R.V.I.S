@@ -25,6 +25,6 @@ def abrir_youtube(comando):
         
         webbrowser.open(url)
         
-        return f"abrindo youtube {pesquisa}"
+        return f"Sim chefe, executando comando agora mesmo."
     
     return None

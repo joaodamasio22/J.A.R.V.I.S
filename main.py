@@ -13,6 +13,11 @@ from pesquisa import pesquisar
 while True:
 
     comando = ouvir()
+    
+    if "jarvis" not in comando:
+        continue
+    
+    comando = comando.replace("jarvis", "").strip()
 
     resposta_personalizada = comandos_personalizados(comando)
     resposta_sistema = executar_comandos(comando)
@@ -33,7 +38,7 @@ while True:
         falar(resposta)
 
     elif "sair" in comando:
-        falar("Finalizando sistema...")
+        falar("Até mais chefe! finalizando sistemas...")
         break
 
     else:
