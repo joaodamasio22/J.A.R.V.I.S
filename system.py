@@ -68,3 +68,19 @@ def tocar_spotify(musica):
         return f"Buscando por {musica} no spotify"
     except Exception as e:
         return f"Erro ao abrir Spotify: {e}"
+    
+def iniciar_cs(comando):
+
+    if not comando:
+        return None
+
+    comando = comando.lower()
+
+    if "cs" in comando or "counter-strike" in comando or "jogar" in comando:
+        try:
+            
+            cs_path = r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike 2\cs2.exe"
+            subprocess.Popen([cs_path])
+            return "Iniciando Counter-Strike"
+        except Exception as e:
+            return f"Erro ao abrir o Counter-Strike: {e}"

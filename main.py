@@ -2,7 +2,7 @@ from ouvir import ouvir
 from falar import falar
 
 from comandos import perguntar_ia, comandos_personalizados
-from system import executar_comandos, abrir_youtube, tocar_spotify, tocar_youtube
+from system import executar_comandos, abrir_youtube, tocar_spotify, tocar_youtube, iniciar_cs
 from pesquisa import pesquisar
 
 import unidecode  
@@ -24,6 +24,12 @@ while True:
             resposta = tocar_spotify(musica)
         else:
             resposta = tocar_youtube(musica)
+            
+    if "jogar" in comando:
+        resposta = iniciar_cs(comando)
+        if resposta:
+            falar(resposta)
+            continue
         
         falar(resposta)
         continue
@@ -40,7 +46,7 @@ while True:
         resposta = pesquisar(comando)
 
     if not resposta and "sair" in comando:
-        falar("Até mais chefe! finalizando sistemas...")
+        falar("Até mais! finalizando sistemas...")
         break
 
     if not resposta:
