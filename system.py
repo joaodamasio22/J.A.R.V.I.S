@@ -1,6 +1,6 @@
 import subprocess
 import webbrowser
-import os
+import urllib.parse
 
 def executar_comandos(comando):
     comando = comando.lower().strip()
@@ -50,9 +50,7 @@ def abrir_youtube(comando):
 
 
 def tocar_youtube(musica):
-    """
-    Pesquisa e abre música no YouTube
-    """
+
     busca = musica.replace(" ", "+")
     url = f"https://www.youtube.com/results?search_query={busca}"
     webbrowser.open(url)
@@ -60,11 +58,13 @@ def tocar_youtube(musica):
 
 
 def tocar_spotify(musica):
-    """
-    Pesquisa e abre música no Spotify
-    """
-    busca = musica.replace(" ", "%20")
-    url = f"https://open.spotify.com/search/{busca}"
-    webbrowser.open(url)
-    return f"Buscando {musica} no Spotify"
-
+    
+    musica_codificada = urllib.parse.quote(musica)
+    
+    uri = f"spotify:search:{musica_codificada}"
+    
+    try:
+        subprocess.Popen([r"C:\Users\User\AppData\Roaming\Spotify\Spotify.exe", uri])
+        return f"Buscando por {musica} no spotify"
+    except Exception as e:
+        return f"Erro ao abrir Spotify: {e}"
