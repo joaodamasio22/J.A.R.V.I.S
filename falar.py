@@ -1,8 +1,6 @@
-import pyttsx3 as p3
+import asyncio
+import edge_tts
+import os
 
-def falar(texto):
-    engine = p3.init()
+async def falar_async(texto):
     
-    engine.say(texto)
-    
-    engine.runAndWait()
