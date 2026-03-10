@@ -2,26 +2,33 @@ import speech_recognition as sr
 
 def ouvir():
 
-    reconhecedor = sr.Recognizer()
+    recognizer = sr.Recognizer()
+    recognizer.energy_threshold = 300
+    recognizer.pause_threshold = 1.2
 
     with sr.Microphone() as source:
-        print("Ajustando microfone...")
-        reconhecedor.adjust_for_ambient_noise(source, duration=1)
+
+        print("Ajustando ao ruído ambiente...")
+        recognizer.adjust_for_ambient_noise(source, duration=1)
 
         print("Jarvis ouvindo...")
-        audio = reconhecedor.listen(source)
 
-        print("Processando áudio...")
+        audio = recognizer.listen(
+            source,
+            timeout=5,
+            phrase_time_limit=8
+        )
 
     try:
-        comando = reconhecedor.recognize_google(audio, language="pt-BR")
+        comando = recognizer.recognize_google(audio, language="pt-BR")
         print("Você disse:", comando)
+
         return comando.lower()
 
-    except Exception as erro:
-        print("Erro:", erro)
-        print("Não entendi")
+    except sr.UnknownValueError:
+        print("Não entendi.")
         return ""
 
-
-ouvir()
+    except sr.RequestError:
+        print("Erro no serviço de reconhecimento.")
+        return ""
