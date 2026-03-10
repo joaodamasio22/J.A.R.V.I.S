@@ -16,14 +16,14 @@ def comandos_personalizados(comando):
     
     comando = comando.lower()
     
-    if "jarvis esta ai" in comando or "jarvis ta ai" in comando:
-        return("ola joão, estou aqui, o que deseja?")
+    if "esta ai" in comando or "ta ai" in comando:
+        return("fala chefe, ao seu dispor")
     
     elif "bom dia" in comando:
         return("Bom dia chefe, como você está?")
     
     elif "bom tarde" in comando:
-        return("Bom tarde chefe, como você está?")
+        return("Boa tarde chefe, como você está?")
     
     elif "boa noite" in comando:
         return("Boa noite chefe, como você está?")

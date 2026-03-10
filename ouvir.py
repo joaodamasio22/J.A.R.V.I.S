@@ -16,7 +16,7 @@ def ouvir():
         audio = recognizer.listen(
             source,
             timeout=5,
-            phrase_time_limit=8
+            phrase_time_limit=10
         )
 
     try:
