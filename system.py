@@ -1,4 +1,3 @@
-# system.py
 import subprocess
 import os
 
@@ -60,14 +59,13 @@ def iniciar_cs(comando):
     if "cs" in comando or "counter-strike" in comando or "jogar" in comando:
         try:
             cs_path = r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike 2\cs2.exe"
-            # Para Steam URI, substitua por: subprocess.Popen(["steam://rungameid/ID_DO_CS2"], shell=True)
+
             subprocess.Popen([cs_path])
             return "Iniciando Counter-Strike"
         except Exception as e:
             return f"Erro ao abrir Counter-Strike: {e}"
     return None
 
-# --- FUNÇÃO PARA ABRIR ARQUIVOS OU PROGRAMAS QUALQUER ---
 def abrir_arquivo_ou_programa(nome_arquivo):
     """
     Pesquisa no PC e abre arquivos ou programas, diferenciando .exe de arquivos comuns
@@ -86,7 +84,6 @@ def abrir_arquivo_ou_programa(nome_arquivo):
     else:
         return f"Arquivo {nome_arquivo} não encontrado"
 
-# --- FUNÇÃO PARA PROCURAR ARQUIVO NO PC ---
 def procurar_arquivo(nome_arquivo, raiz="C:\\"):
     import os
     for root, dirs, files in os.walk(raiz):

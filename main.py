@@ -1,4 +1,3 @@
-# main.py
 from ouvir import ouvir
 from falar import falar
 
@@ -25,7 +24,6 @@ while True:
 
     resposta = None
 
-    # --- COMANDOS DE MÚSICA ---
     if "toca" in comando or "tocar" in comando or "reproduza" in comando:
         musica = comando.replace("toca", "").replace("tocar", "").replace("reproduza", "").replace("spotify", "").strip()
         
@@ -38,44 +36,35 @@ while True:
             falar(resposta)
             continue
 
-    # --- COMANDO JOGAR CS2 ---
     if "jogar" in comando:
         resposta = iniciar_cs(comando)
         if resposta:
             falar(resposta)
         continue
 
-    # --- ABRIR ARQUIVOS OU PROGRAMAS ---
     if "abrir" in comando:
         nome_arquivo = comando.replace("abrir", "").strip()
         resposta = abrir_arquivo_ou_programa(nome_arquivo)
         falar(resposta)
         continue
 
-    # --- COMANDOS PERSONALIZADOS ---
     resposta = comandos_personalizados(comando)
 
-    # --- EXECUTAR PROGRAMAS DO PC ---
     if not resposta:
         resposta = executar_comandos(comando)
 
-    # --- ABRIR YOUTUBE ---
     if not resposta:
         resposta = abrir_youtube(comando)
 
-    # --- PESQUISAR ---
     if not resposta and "pesquise" in comando:
         resposta = pesquisar(comando)
 
-    # --- SAIR ---
     if not resposta and "sair" in comando:
         falar("Até mais! finalizando sistemas...")
         break
 
-    # --- CONSULTAR IA ---
     if not resposta:
         resposta = perguntar_ia(comando)
 
-    # --- FALAR RESPOSTA ---
     if resposta:
         falar(resposta)
