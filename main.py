@@ -1,4 +1,6 @@
-# main.py
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 from ouvir import ouvir
 from falar import falar
 
@@ -14,10 +16,13 @@ from system import (
 from pesquisa import pesquisar
 
 import unidecode  
+import time
+
 
 while True:
     comando = ouvir()
     if not comando:
+        time.sleep(0.3)
         continue
 
     comando = unidecode.unidecode(comando.lower().strip())
@@ -64,7 +69,7 @@ while True:
         resposta = abrir_youtube(comando)
 
     # --- PESQUISAR ---
-    if not resposta and "pesquise" in comando:
+    if not resposta and "pesquisar" in comando:
         resposta = pesquisar(comando)
 
     # --- SAIR ---

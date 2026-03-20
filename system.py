@@ -88,9 +88,18 @@ def abrir_arquivo_ou_programa(nome_arquivo):
 
 # --- FUNÇÃO PARA PROCURAR ARQUIVO NO PC ---
 def procurar_arquivo(nome_arquivo, raiz="C:\\"):
-    import os
-    for root, dirs, files in os.walk(raiz):
-        for file in files:
-            if nome_arquivo.lower() in file.lower():
-                return os.path.join(root, file)
+    pastas_comuns = [
+        os.path.expanduser("~\\Desktop"),
+        os.path.expanduser("~\\Documents"),
+        os.path.expanduser("~\\Downloads"),
+        r"C:\Program Files",
+        r"C:\Program Files (x86)",
+    ]
+    
+    for pasta in pastas_comuns:
+        for root, dirs, files in os.walk(pasta):
+            for file in files:
+                if nome_arquivo.lower() in file.lower():
+                    return os.path.join(root, file)
+    
     return None
