@@ -1,4 +1,3 @@
-# comandos.py
 import ollama  # ou outra API de IA que você estiver usando
 
 def perguntar_ia(pergunta):

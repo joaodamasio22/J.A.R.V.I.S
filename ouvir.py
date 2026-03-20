@@ -12,13 +12,11 @@ def ouvir():
         recognizer.adjust_for_ambient_noise(source, duration=1)
 
         print("Jarvis ouvindo...")
-
-        audio = recognizer.listen(
-            source,
-            timeout=5,
-            phrase_time_limit=10
-        )
-
+        
+        try:
+            audio = recognizer.listen(source,timeout=5,phrase_time_limit=10)
+        except sr.WaitTimeoutError:
+            print("Nenhum audio detectado.")
     try:
         comando = recognizer.recognize_google(audio, language="pt-BR")
         print("Você disse:", comando)
