@@ -3,7 +3,6 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from ouvir import ouvir
 from falar import falar
-
 from comandos import perguntar_ia, comandos_personalizados
 from system import (
     executar_comandos,
@@ -14,10 +13,8 @@ from system import (
     abrir_arquivo_ou_programa
 )
 from pesquisa import pesquisar
-
-import unidecode  
+import unidecode
 import time
-
 
 while True:
     comando = ouvir()
@@ -27,60 +24,55 @@ while True:
 
     comando = unidecode.unidecode(comando.lower().strip())
     comando = comando.replace("jarvis", "").strip()
-
+    print(f"🔍 Comando processado: '{comando}'") 
     resposta = None
 
-    # --- COMANDOS DE MÚSICA ---
-    if "toca" in comando or "tocar" in comando or "reproduza" in comando:
-        musica = comando.replace("toca", "").replace("tocar", "").replace("reproduza", "").replace("spotify", "").strip()
-        
+    if "sair" in comando:
+        falar("Ate mais! finalizando sistemas...")
+        break
+
+    if any(p in comando for p in ["toca", "tocar", "reproduza"]):
+        musica = comando
+        for p in ["toca", "tocar", "reproduza", "spotify"]:
+            musica = musica.replace(p, "")
+        musica = musica.strip()
         if "spotify" in comando:
             resposta = tocar_spotify(musica)
         else:
             resposta = tocar_youtube(musica)
-        
         if resposta:
             falar(resposta)
-            continue
+        continue
 
-    # --- COMANDO JOGAR CS2 ---
     if "jogar" in comando:
         resposta = iniciar_cs(comando)
         if resposta:
             falar(resposta)
         continue
 
-    # --- ABRIR ARQUIVOS OU PROGRAMAS ---
     if "abrir" in comando:
         nome_arquivo = comando.replace("abrir", "").strip()
         resposta = abrir_arquivo_ou_programa(nome_arquivo)
         falar(resposta)
         continue
 
-    # --- COMANDOS PERSONALIZADOS ---
+    palavras_pesquisa = ["pesquise", "pesquisar", "busque", "buscar", "procure", "procurar"]
+    if any(p in comando for p in palavras_pesquisa):
+        resposta = pesquisar(comando)
+        if resposta:
+            falar(resposta)
+        continue  
+
     resposta = comandos_personalizados(comando)
 
-    # --- EXECUTAR PROGRAMAS DO PC ---
     if not resposta:
         resposta = executar_comandos(comando)
 
-    # --- ABRIR YOUTUBE ---
     if not resposta:
         resposta = abrir_youtube(comando)
 
-    # --- PESQUISAR ---
-    if not resposta and "pesquisar" in comando:
-        resposta = pesquisar(comando)
-
-    # --- SAIR ---
-    if not resposta and "sair" in comando:
-        falar("Até mais! finalizando sistemas...")
-        break
-
-    # --- CONSULTAR IA ---
     if not resposta:
         resposta = perguntar_ia(comando)
 
-    # --- FALAR RESPOSTA ---
     if resposta:
         falar(resposta)

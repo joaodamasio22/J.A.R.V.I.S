@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 from openai import OpenAI
 from datetime import datetime
 import time
 
 client = OpenAI(
-    api_key="SUA_CHAVE_AQUI",
+    api_key="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",
     base_url="https://openrouter.ai/api/v1"
 )
 
 def perguntar_ia(pergunta):
-    # Pega a data e hora atual automaticamente
     agora = datetime.now()
     data_hora = agora.strftime("%A, %d de %B de %Y, %H:%M")
     
@@ -34,7 +32,6 @@ Dia da semana em portugues: {agora.strftime('%A')}"""},
 def comandos_personalizados(comando):
     comando = comando.lower()
 
-    # Resposta local para data/hora (sem precisar da IA!)
     agora = datetime.now()
     if any(p in comando for p in ["que dia", "que horas", "hora certa", "data"]):
         if "hora" in comando:

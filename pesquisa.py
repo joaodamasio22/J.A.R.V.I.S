@@ -1,18 +1,24 @@
 import webbrowser
 
 def pesquisar(comando):
-    for palavra in ["pesquisar", "pesquise", "buscar", "busque"]:
-         
+    palavras_chave = ["pesquisar", "pesquise", "buscar", "busque", "procurar", "procure"]
+    
+    encontrou = False
+    for palavra in palavras_chave:
         if palavra in comando:
-            assunto = comando
-            
-            for p in ["pesquisar", "pesquise", "buscar", "busque"]:
-                assunto = assunto.replace(p, "")
-            
-            assunto = assunto.strip()
-
-            webbrowser.open(f"https://www.google.com/search?q={assunto}")
-
-            return f"Pesquisa concluída sobre {assunto}"
-
+            encontrou = True
+            break  
+    
+    if not encontrou:
         return None
+
+    assunto = comando
+    for p in palavras_chave:
+        assunto = assunto.replace(p, "")
+    assunto = assunto.strip()
+
+    if not assunto:
+        return "O que voce quer que eu pesquise?"
+
+    webbrowser.open(f"https://www.google.com/search?q={assunto}")
+    return f"Pesquisando sobre {assunto}"
