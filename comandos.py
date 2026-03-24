@@ -3,7 +3,7 @@ from datetime import datetime
 import time
 
 client = OpenAI(
-    api_key="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",
+    api_key="#",
     base_url="https://openrouter.ai/api/v1"
 )
 
