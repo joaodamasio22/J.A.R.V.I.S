@@ -1,78 +1,133 @@
+"""
+main.py — Ponto de entrada do Jarvis.
+
+Pipeline assíncrono com 3 workers paralelos:
+
+    ┌─────────────┐    queue_comandos    ┌──────────────┐    queue_respostas    ┌─────────────┐
+    │  Listener   │ ──────────────────► │    Brain     │ ──────────────────► │   Speaker   │
+    │  (Thread)   │                     │   (Thread)   │                     │  (Thread)   │
+    └─────────────┘                     └──────────────┘                     └─────────────┘
+
+- Listener nunca para de ouvir, nem durante respostas
+- Brain processa comandos sem esperar o áudio terminar
+- Speaker enfileira falas e toca em sequência
+- flag speaker.falando evita que o Jarvis ouça o próprio eco
+"""
+
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-from ouvir import ouvir
-from falar import falar
-from comandos import perguntar_ia, comandos_personalizados
-from system import (
-    executar_comandos,
-    abrir_youtube,
-    tocar_spotify,
-    tocar_youtube,
-    iniciar_cs,
-    abrir_arquivo_ou_programa
-)
-from pesquisa import pesquisar
-import unidecode
+import queue
+import threading
 import time
 
-while True:
-    comando = ouvir()
-    if not comando:
-        time.sleep(0.3)
-        continue
+from core.listener import Listener
+from core.speaker  import Speaker
+from core.brain    import Brain
+from core.logger   import log
+from config        import ASSISTANT_NAME, USER_NAME
 
-    comando = unidecode.unidecode(comando.lower().strip())
-    comando = comando.replace("jarvis", "").strip()
-    print(f"🔍 Comando processado: '{comando}'") 
-    resposta = None
+SENTINEL = "__EXIT__"
 
-    if "sair" in comando:
-        falar("Ate mais! finalizando sistemas...")
-        break
 
-    if any(p in comando for p in ["toca", "tocar", "reproduza"]):
-        musica = comando
-        for p in ["toca", "tocar", "reproduza", "spotify"]:
-            musica = musica.replace(p, "")
-        musica = musica.strip()
-        if "spotify" in comando:
-            resposta = tocar_spotify(musica)
-        else:
-            resposta = tocar_youtube(musica)
+def brain_worker(
+    cmd_queue: queue.Queue,
+    resp_queue: queue.Queue,
+    speaker: Speaker,
+    brain: Brain,
+    stop_event: threading.Event,
+):
+    log.info("Brain worker iniciado.")
+    while not stop_event.is_set():
+        try:
+            texto = cmd_queue.get(timeout=0.5)
+        except queue.Empty:
+            continue
+
+        if speaker.falando.is_set():
+            log.debug("Eco ignorado: '%s'", texto)
+            continue
+
+        log.info("Processando: '%s'", texto)
+        resposta = brain.processar(texto)
+
+        if resposta == SENTINEL:
+            resp_queue.put(SENTINEL)
+            stop_event.set()
+            break
+
         if resposta:
-            falar(resposta)
-        continue
+            resp_queue.put(resposta)
 
-    if "jogar" in comando:
-        resposta = iniciar_cs(comando)
-        if resposta:
-            falar(resposta)
-        continue
+    log.info("Brain worker encerrado.")
 
-    if "abrir" in comando:
-        nome_arquivo = comando.replace("abrir", "").strip()
-        resposta = abrir_arquivo_ou_programa(nome_arquivo)
-        falar(resposta)
-        continue
 
-    palavras_pesquisa = ["pesquise", "pesquisar", "busque", "buscar", "procure", "procurar"]
-    if any(p in comando for p in palavras_pesquisa):
-        resposta = pesquisar(comando)
-        if resposta:
-            falar(resposta)
-        continue  
+def speaker_worker(
+    resp_queue: queue.Queue,
+    speaker: Speaker,
+    stop_event: threading.Event,
+):
+    """Consome respostas e envia ao Speaker."""
+    log.info("Speaker worker iniciado.")
+    while not stop_event.is_set():
+        try:
+            texto = resp_queue.get(timeout=0.5)
+        except queue.Empty:
+            continue
 
-    resposta = comandos_personalizados(comando)
+        if texto == SENTINEL:
+            break
 
-    if not resposta:
-        resposta = executar_comandos(comando)
+        speaker.falar(texto)
 
-    if not resposta:
-        resposta = abrir_youtube(comando)
+    log.info("Speaker worker encerrado.")
 
-    if not resposta:
-        resposta = perguntar_ia(comando)
 
-    if resposta:
-        falar(resposta)
+def main():
+    log.info("Iniciando %s para %s…", ASSISTANT_NAME, USER_NAME)
+
+    cmd_queue:  queue.Queue[str] = queue.Queue()
+    resp_queue: queue.Queue[str] = queue.Queue()
+    stop_event = threading.Event()
+
+    speaker = Speaker()
+    brain   = Brain()
+    listener = Listener(cmd_queue)
+
+    # Inicia os workers
+    t_brain = threading.Thread(
+        target=brain_worker,
+        args=(cmd_queue, resp_queue, speaker, brain, stop_event),
+        daemon=True,
+        name="BrainWorker",
+    )
+    t_speaker = threading.Thread(
+        target=speaker_worker,
+        args=(resp_queue, speaker, stop_event),
+        daemon=True,
+        name="SpeakerWorker",
+    )
+
+    t_brain.start()
+    t_speaker.start()
+    listener.iniciar()
+
+    speaker.falar(f"Sistema online. Olá, {USER_NAME}.")
+
+    try:
+        # Loop principal só monitora o stop_event
+        while not stop_event.is_set():
+            time.sleep(0.2)
+    except KeyboardInterrupt:
+        log.info("Interrompido pelo usuário.")
+        stop_event.set()
+    finally:
+        listener.parar()
+        t_brain.join(timeout=3)
+        t_speaker.join(timeout=3)
+        speaker.shutdown()
+        log.info("%s encerrado.", ASSISTANT_NAME)
+
+
+if __name__ == "__main__":
+    main()
